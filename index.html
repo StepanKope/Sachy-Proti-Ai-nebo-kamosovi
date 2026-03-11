@@ -4,89 +4,150 @@
     <meta charset="UTF-8">
     <title>Šachy</title>
     <style>
+        :root {
+            --bg-color: #2c3e50;
+            --board-border: #34495e;
+            --white-sq: #ebecd0;
+            --black-sq: #779556;
+            --text-color: #ecf0f1;
+            --square-size: 80px; /* Bigger board! */
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: #2c3e50;
-            color: white;
-            margin-top: 50px;
+            padding-top: 30px;
+            margin: 0;
         }
 
         h1 {
-            margin-bottom: 20px;
-            font-size: 3rem;
-            text-transform: uppercase;
-            letter-spacing: 5px;
+            letter-spacing: 8px;
+            margin-bottom: 30px;
         }
 
-        .chess-container {
+        /* Main container to hold board and buttons side-by-side */
+        .main-layout {
+            display: flex;
+            align-items: flex-start;
+            gap: 40px;
+        }
+
+        /* The container for the board and its coordinates */
+        .game-area {
             display: grid;
-            /* 8 columns of 60px each */
-            grid-template-columns: repeat(8, 60px);
-            /* 8 rows of 60px each */
-            grid-template-rows: repeat(8, 60px);
-            border: 10px solid #34495e;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            grid-template-columns: 30px auto; /* Left numbers + Board */
+            grid-template-rows: auto 30px;    /* Board + Bottom letters */
+        }
+
+        .numbers-axis {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .letters-axis {
+            grid-column: 2;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(8, var(--square-size));
+            grid-template-rows: repeat(8, var(--square-size));
+            border: 5px solid var(--board-border);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         }
 
         .square {
-            width: 60px;
-            height: 60px;
+            width: var(--square-size);
+            height: var(--square-size);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 40px; /* Ready for pieces later */
+        }
+
+        .white { background-color: var(--white-sq); }
+        .black { background-color: var(--black-sq); }
+
+        /* Buttons Styling */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding-top: 5px;
+        }
+
+        .btn {
+            background-color: #e67e22;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            font-size: 1.1rem;
             font-weight: bold;
-            user-select: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            min-width: 180px;
         }
 
-        /* Standard Chess Colors */
-        .white {
-            background-color: #ebecd0;
-            color: #779556;
+        .btn:hover {
+            background-color: #d35400;
+            transform: scale(1.05);
         }
 
-        .black {
-            background-color: #779556;
-            color: #ebecd0;
-        }
+        .btn-ai { background-color: #3498db; }
+        .btn-ai:hover { background-color: #2980b9; }
 
-        /* Decorative footer */
-        .footer {
-            margin-top: 20px;
-            font-size: 0.9rem;
-            opacity: 0.7;
-        }
     </style>
 </head>
 <body>
 
     <h1>ŠACHY</h1>
 
-    <div class="chess-container" id="board">
+    <div class="main-layout">
+        <div class="game-area">
+            <div class="numbers-axis">
+                <div>8</div><div>7</div><div>6</div><div>5</div>
+                <div>4</div><div>3</div><div>2</div><div>1</div>
+            </div>
+
+            <div class="board" id="board"></div>
+
+            <div class="letters-axis">
+                <div>A</div><div>B</div><div>C</div><div>D</div>
+                <div>E</div><div>F</div><div>G</div><div>H</div>
+            </div>
         </div>
 
-    <div class="footer">Souřadnice A1 až H8</div>
+        <div class="controls">
+            <button class="btn" onclick="alert('Hra proti kámošovi začíná!')">Proti kámošovi</button>
+            <button class="btn btn-ai" onclick="alert('AI se připravuje...')">Proti AI</button>
+        </div>
+    </div>
 
     <script>
         const board = document.getElementById('board');
-        const cols = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
         
-        // Loop through rows 8 down to 1
         for (let r = 8; r >= 1; r--) {
-            // Loop through columns A to H
             for (let c = 0; c < 8; c++) {
                 const square = document.createElement('div');
-                
-                // Determine color: (Row + Column Index)
-                // If even, it's white. If odd, it's black.
                 const isWhite = (r + c) % 2 !== 0;
                 square.className = `square ${isWhite ? 'white' : 'black'}`;
                 
-                // Add the notation (e.g., A8, B8...)
-                square.innerText = cols[c] + r;
+                // We no longer put A1/B2 text inside, 
+                // but we give the div an ID for later use
+                const colLetter = String.fromCharCode(65 + c);
+                square.id = colLetter + r;
                 
                 board.appendChild(square);
             }
