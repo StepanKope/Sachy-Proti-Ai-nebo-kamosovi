@@ -7,7 +7,7 @@
 </head>
 <body>
 
-    <h1>ŠKOLNÍ ŠACHY - PRAVIDLA V PRAXI</h1>
+    <h1 class="main-title">ŠKOLNÍ ŠACHY</h1>
 
     <div class="game-container">
         <div class="info-panel">
@@ -19,13 +19,13 @@
             </div>
 
             <div class="move-history">
-                <strong>Poslední akce:</strong>
-                <div id="msg">Vítejte ve hře!</div>
+                <strong>Zprávy:</strong>
+                <div id="msg">Hra připravena.</div>
             </div>
 
             <div class="controls">
-                <button class="btn btn-reset" onclick="resetGame()">Nová hra / Reset</button>
-                <button class="btn btn-rules" onclick="window.location.href='rules.html'">Zobrazit pravidla</button>
+                <button class="btn btn-reset" onclick="resetGame()">Restart hry</button>
+                <button class="btn btn-rules" onclick="window.location.href='rules.html'">Pravidla</button>
             </div>
         </div>
 
@@ -114,29 +114,17 @@
             const type = piece.toLowerCase();
             let isLegal = false;
 
-            // Základní ochrana: nebrat vlastní barvu
             if (target && (target === target.toUpperCase()) === (piece === piece.toUpperCase())) {
                 deselect();
                 return;
             }
 
-            // --- LOGIKA PRAVIDEL ---
-            if (type === 'n') { // Jezdec L
-                if ((diffR === 2 && diffC === 1) || (diffR === 1 && diffC === 2)) isLegal = true;
-            } 
-            else if (type === 'b') { // Střelec diagonálně
-                if (diffR === diffC) isLegal = true; 
-            }
-            else if (type === 'r') { // Věž rovně
-                if (diffR === 0 || diffC === 0) isLegal = true;
-            }
-            else if (type === 'q') { // Dáma (vše)
-                if (diffR === diffC || diffR === 0 || diffC === 0) isLegal = true;
-            }
-            else if (type === 'k') { // Král 1 pole
-                if (diffR <= 1 && diffC <= 1) isLegal = true;
-            }
-            else if (type === 'p') { // Pěšec (pohyb + braní + první tah)
+            if (type === 'n') { if ((diffR === 2 && diffC === 1) || (diffR === 1 && diffC === 2)) isLegal = true; } 
+            else if (type === 'b') { if (diffR === diffC) isLegal = true; }
+            else if (type === 'r') { if (diffR === 0 || diffC === 0) isLegal = true; }
+            else if (type === 'q') { if (diffR === diffC || diffR === 0 || diffC === 0) isLegal = true; }
+            else if (type === 'k') { if (diffR <= 1 && diffC <= 1) isLegal = true; }
+            else if (type === 'p') { 
                 const dir = piece === 'P' ? -1 : 1;
                 if (toC === fromC && !target) {
                     if (toR === fromR + dir) isLegal = true;
@@ -148,19 +136,12 @@
             if (isLegal) {
                 boardState[toR][toC] = piece;
                 boardState[fromR][fromC] = '';
-
-                // Proměna pěšce (Povýšení na dámu na konci desky)
-                if (type === 'p' && (toR === 0 || toR === 7)) {
-                    boardState[toR][toC] = (piece === 'P') ? 'Q' : 'q';
-                    msgEl.innerText = "Pěšec proměněn na dámu!";
-                }
-
+                if (type === 'p' && (toR === 0 || toR === 7)) boardState[toR][toC] = (piece === 'P') ? 'Q' : 'q';
                 switchTurn();
             } else {
-                msgEl.innerText = "Neplatný tah dle pravidel!";
-                setTimeout(() => msgEl.innerText = "", 2000);
+                msgEl.innerText = "Neplatný tah!";
+                setTimeout(() => msgEl.innerText = "", 1500);
             }
-
             deselect();
             drawPieces();
         }

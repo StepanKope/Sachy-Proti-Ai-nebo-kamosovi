@@ -3,84 +3,75 @@
     --black-sq: #b58863;
     --square-size: 70px;
     --accent: #27ae60;
-    --bg-color: #1a1a1a;
 }
 
 body {
-    background-color: var(--bg-color);
+    /* TVŮJ ODKAZ NA POZADÍ */
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                url('https://t3.ftcdn.net/jpg/18/06/45/26/360_F_1806452627_gLpxNyDgzk2WbcSKTGwLKFvE9YjqftnZ.jpg');
+    background-size: cover;
+    background-attachment: fixed;
     color: white;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 20px;
+    justify-content: center;
+    min-height: 100vh;
     margin: 0;
 }
 
-h1 {
-    text-transform: uppercase;
-    letter-spacing: 4px;
-    text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+.main-title {
+    letter-spacing: 10px;
+    text-shadow: 0 0 15px rgba(0,0,0,1);
+    margin-bottom: 20px;
 }
 
 .game-container {
     display: flex;
-    gap: 40px;
-    background: #2c3e50;
+    gap: 30px;
+    background: rgba(0, 0, 0, 0.85);
     padding: 30px;
-    border-radius: 20px;
+    border-radius: 15px;
+    border: 2px solid #555;
     box-shadow: 0 0 50px rgba(0,0,0,0.8);
-    border: 1px solid #3e5871;
 }
 
-/* Informační Panel */
 .info-panel {
-    width: 250px;
+    width: 220px;
     display: flex;
     flex-direction: column;
     gap: 15px;
 }
 
 #status {
-    background: #16a085;
+    background: #2c3e50;
     padding: 15px;
     text-align: center;
+    font-weight: bold;
     border-radius: 8px;
-    font-size: 1.3rem;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+    color: #f1c40f;
 }
 
 .clock-box {
     background: #34495e;
     padding: 10px;
     text-align: center;
-    font-size: 1.2rem;
     border-radius: 8px;
-    border: 2px solid transparent;
-    transition: all 0.3s;
+    font-family: monospace;
+    font-size: 1.2rem;
 }
 
 .active-turn {
-    border-color: #f1c40f;
-    background: #415b76;
-    transform: scale(1.05);
+    border: 2px solid #f1c40f;
+    box-shadow: 0 0 10px #f1c40f;
 }
 
-.move-history {
-    background: rgba(0,0,0,0.3);
-    padding: 15px;
-    border-radius: 8px;
-    flex-grow: 1;
-    font-size: 0.9rem;
-}
-
-/* Šachovnice */
 .board {
     display: grid;
     grid-template-columns: repeat(8, var(--square-size));
     grid-template-rows: repeat(8, var(--square-size));
-    border: 10px solid #1a1a1a;
-    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    border: 10px solid #333;
 }
 
 .square {
@@ -97,21 +88,17 @@ h1 {
 .black { background-color: var(--black-sq); }
 .selected { background-color: #f1c40f !important; }
 
-.piece-black { color: #000; filter: drop-shadow(0 0 2px rgba(255,255,255,0.2)); }
-.piece-white { color: #fff; filter: drop-shadow(0 0 2px rgba(0,0,0,0.8)); }
+.piece-black { color: #000; filter: drop-shadow(0 0 1px #fff); }
+.piece-white { color: #fff; filter: drop-shadow(0 0 2px #000); }
 
-/* Tlačítka */
 .btn {
-    padding: 12px;
+    padding: 15px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
-    text-transform: uppercase;
-    transition: background 0.2s;
+    background: var(--accent);
+    color: white;
 }
 
-.btn-reset { background: #e67e22; color: white; }
-.btn-reset:hover { background: #d35400; }
-.btn-rules { background: #9b59b6; color: white; }
-.btn-rules:hover { background: #8e44ad; }
+.btn-rules { background: #9b59b6; }
