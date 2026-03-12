@@ -2,19 +2,19 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <title>Šachy</title>
+    <title>Školní Šachy</title>
     <style>
         :root {
             --white-sq: #ebecd0;
             --black-sq: #779556;
             --square-size: 80px; 
+            --accent: #27ae60;
         }
 
         body {
             font-family: 'Segoe UI', sans-serif;
-            /* Background Image Setup */
-            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
-                        url('https://wallpaperaccess.com/full/1150495.jpg');
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                        url('https://t3.ftcdn.net/jpg/18/06/45/26/360_F_1806452627_gLpxNyDgzk2WbcSKTGwLKFvE9YjqftnZ.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -27,63 +27,62 @@
             margin: 0;
         }
 
-        /* Container for everything to keep it organized */
         .game-wrapper {
-            background: rgba(0, 0, 0, 0.6); /* Semi-transparent dark box */
-            padding: 40px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
             border-radius: 20px;
-            backdrop-filter: blur(5px); /* Blurs the wallpaper slightly behind the board */
+            backdrop-filter: blur(10px);
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.9);
         }
 
-        h1 {
-            letter-spacing: 15px;
-            margin: 0 0 30px 0;
+        h1 { letter-spacing: 10px; margin: 0 0 20px 0; font-size: 2.5rem; text-align: center; }
+
+        .main-layout { display: flex; align-items: stretch; gap: 30px; }
+
+        /* Left Sidebar: Timers */
+        .timer-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 150px;
+        }
+
+        .timer-btn {
+            background: #34495e;
+            color: white;
+            border: 1px solid #555;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .timer-btn:hover { background: #48637f; }
+        .active-mode { border-color: var(--accent); background: var(--accent) !important; }
+
+        .clocks-display {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
             text-align: center;
-            font-size: 3rem;
-            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
         }
+        .clock { font-size: 1.5rem; font-family: monospace; margin: 5px 0; }
+        .active-clock { color: #f1c40f; text-shadow: 0 0 10px #f1c40f; }
 
-        .main-layout {
-            display: flex;
-            align-items: flex-start;
-            gap: 50px;
-        }
-
-        .game-area {
-            display: grid;
-            grid-template-columns: 40px auto;
-            grid-template-rows: auto 40px;
-        }
-
-        .numbers-axis {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            align-items: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-
-        .letters-axis {
-            grid-column: 2;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-            padding-top: 10px;
-        }
+        /* Board Area */
+        .game-area { display: grid; grid-template-columns: 30px auto; grid-template-rows: auto 30px; }
+        .numbers-axis, .letters-axis { font-weight: bold; color: #bdc3c7; display: flex; justify-content: space-around; }
+        .numbers-axis { flex-direction: column; align-items: center; }
+        .letters-axis { grid-column: 2; padding-top: 5px; }
 
         .board {
             display: grid;
             grid-template-columns: repeat(8, var(--square-size));
             grid-template-rows: repeat(8, var(--square-size));
-            border: 8px solid #34495e;
-            border-radius: 4px;
+            border: 5px solid #2c3e50;
         }
 
         .square {
@@ -92,100 +91,189 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 55px;
+            font-size: 60px;
             cursor: pointer;
         }
-
         .white { background-color: var(--white-sq); }
         .black { background-color: var(--black-sq); }
+        .selected { background-color: #f1c40f !important; }
 
-        .controls {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            justify-content: center;
-            height: 100%;
-        }
-
+        /* Right Controls */
+        .controls { display: flex; flex-direction: column; gap: 15px; }
         .btn {
-            background-color: #e67e22;
-            color: white;
-            border: none;
-            padding: 20px 30px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            background-color: var(--accent);
+            color: white; border: none; padding: 15px 20px;
+            font-size: 1rem; font-weight: bold; border-radius: 8px;
+            cursor: pointer; min-width: 180px;
         }
-
-        .btn:hover {
-            background-color: #d35400;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-        }
-
-        .btn-ai { background-color: #3498db; }
-        .btn-ai:hover { background-color: #2980b9; }
+        .btn-ai { background-color: #2980b9; }
 
         .piece-black { color: #000; filter: drop-shadow(0 0 1px #fff); }
         .piece-white { color: #fff; filter: drop-shadow(0 0 2px #000); }
+        
+        #turn-indicator { margin-bottom: 10px; font-weight: bold; color: var(--accent); }
     </style>
 </head>
 <body>
 
     <div class="game-wrapper">
-        <h1>ŠACHY</h1>
+        <h1>ŠKOLNÍ ŠACHY</h1>
+        <div id="turn-indicator">NA TAHU: BÍLÝ</div>
 
         <div class="main-layout">
-            <div class="game-area">
-                <div class="numbers-axis">
-                    <div>8</div><div>7</div><div>6</div><div>5</div>
-                    <div>4</div><div>3</div><div>2</div><div>1</div>
-                </div>
-
-                <div class="board" id="board"></div>
-
-                <div class="letters-axis">
-                    <div>A</div><div>B</div><div>C</div><div>D</div>
-                    <div>E</div><div>F</div><div>G</div><div>H</div>
+            <div class="timer-sidebar">
+                <button class="timer-btn" onclick="setTimer(60, this)">1 Minuta</button>
+                <button class="timer-btn" onclick="setTimer(180, this)">3 Minuty</button>
+                <button class="timer-btn" onclick="setTimer(600, this)">10 Minut</button>
+                <button class="timer-btn active-mode" onclick="setTimer(null, this)">Bez limitu</button>
+                
+                <div class="clocks-display">
+                    <div>Černý</div>
+                    <div id="clock-black" class="clock">--:--</div>
+                    <hr>
+                    <div>Bílý</div>
+                    <div id="clock-white" class="clock">--:--</div>
                 </div>
             </div>
 
+            <div class="game-area">
+                <div class="numbers-axis"><div>8</div><div>7</div><div>6</div><div>5</div><div>4</div><div>3</div><div>2</div><div>1</div></div>
+                <div class="board" id="board"></div>
+                <div class="letters-axis"><div>A</div><div>B</div><div>C</div><div>D</div><div>E</div><div>F</div><div>G</div><div>H</div></div>
+            </div>
+
             <div class="controls">
-                <button class="btn" onclick="alert('Hra proti kámošovi!')">Proti kámošovi</button>
-                <button class="btn btn-ai" onclick="alert('AI se připravuje...')">Proti AI</button>
+                <button class="btn" onclick="resetBoard()">Restartovat hru</button>
+                <button class="btn btn-ai">Proti AI (Brzy)</button>
             </div>
         </div>
     </div>
 
     <script>
-        const board = document.getElementById('board');
-        const initialPieces = {
-            '8': ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
-            '7': ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
-            '2': ['♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙'],
-            '1': ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖']
-        };
+        const boardEl = document.getElementById('board');
+        let selectedSquare = null;
+        let currentTurn = 'white'; // 'white' or 'black'
+        
+        // Timer variables
+        let timers = { white: 0, black: 0 };
+        let timerActive = false;
+        let interval = null;
 
-        for (let r = 8; r >= 1; r--) {
-            for (let c = 0; c < 8; c++) {
-                const square = document.createElement('div');
-                const isWhiteSquare = (r + c) % 2 !== 0;
-                square.className = `square ${isWhiteSquare ? 'white' : 'black'}`;
-                
-                if (initialPieces[r]) {
-                    const piece = initialPieces[r][c];
-                    const pieceClass = (r > 4) ? 'piece-black' : 'piece-white';
-                    const span = document.createElement('span');
-                    span.className = pieceClass;
-                    span.innerText = piece;
-                    square.appendChild(span);
+        function updateClockDisplay() {
+            const format = (s) => {
+                if (s === null) return "--:--";
+                let m = Math.floor(s / 60);
+                let sec = s % 60;
+                return `${m}:${sec < 10 ? '0' : ''}${sec}`;
+            };
+            document.getElementById('clock-white').innerText = format(timers.white);
+            document.getElementById('clock-black').innerText = format(timers.black);
+            
+            document.getElementById('clock-white').classList.toggle('active-clock', currentTurn === 'white' && timerActive);
+            document.getElementById('clock-black').classList.toggle('active-clock', currentTurn === 'black' && timerActive);
+        }
+
+        function setTimer(seconds, btn) {
+            clearInterval(interval);
+            document.querySelectorAll('.timer-btn').forEach(b => b.classList.remove('active-mode'));
+            btn.classList.add('active-mode');
+            
+            if (seconds === null) {
+                timers.white = null; timers.black = null;
+                timerActive = false;
+            } else {
+                timers.white = seconds; timers.black = seconds;
+                timerActive = true;
+                startTicking();
+            }
+            updateClockDisplay();
+        }
+
+        function startTicking() {
+            clearInterval(interval);
+            interval = setInterval(() => {
+                if (!timerActive) return;
+                if (timers[currentTurn] > 0) {
+                    timers[currentTurn]--;
+                    updateClockDisplay();
+                } else {
+                    alert("Čas vypršel! Konec hry.");
+                    clearInterval(interval);
                 }
-                board.appendChild(square);
+            }, 1000);
+        }
+
+        function resetBoard() {
+            boardEl.innerHTML = '';
+            currentTurn = 'white';
+            document.getElementById('turn-indicator').innerText = "NA TAHU: BÍLÝ";
+            createBoard();
+        }
+
+        function createBoard() {
+            for (let r = 8; r >= 1; r--) {
+                for (let c = 0; c < 8; c++) {
+                    const square = document.createElement('div');
+                    const isWhiteSquare = (r + c) % 2 !== 0;
+                    square.className = `square ${isWhiteSquare ? 'white' : 'black'}`;
+                    square.dataset.row = r;
+                    square.dataset.col = c;
+
+                    let piece = "";
+                    let pSide = "";
+
+                    if (r === 8) { piece = ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'][c]; pSide = "black"; }
+                    else if (r === 7) { piece = '♟'; pSide = "black"; }
+                    else if (r === 2) { piece = '♙'; pSide = "white"; }
+                    else if (r === 1) { piece = ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖'][c]; pSide = "white"; }
+
+                    if (piece) {
+                        const span = document.createElement('span');
+                        span.className = pSide === "black" ? "piece-black" : "piece-white";
+                        span.innerText = piece;
+                        span.dataset.side = pSide;
+                        square.appendChild(span);
+                    }
+
+                    square.onclick = () => handleSquareClick(square);
+                    boardEl.appendChild(square);
+                }
             }
         }
+
+        function handleSquareClick(square) {
+            const piece = square.querySelector('span');
+
+            // Selecting a piece
+            if (!selectedSquare) {
+                if (piece && piece.dataset.side === currentTurn) {
+                    selectedSquare = square;
+                    square.classList.add('selected');
+                }
+            } 
+            // Moving a piece
+            else {
+                if (square === selectedSquare) {
+                    selectedSquare.classList.remove('selected');
+                    selectedSquare = null;
+                    return;
+                }
+
+                // Execute move
+                const movingPiece = selectedSquare.querySelector('span');
+                square.innerHTML = ''; // Capture piece if exists
+                square.appendChild(movingPiece);
+                selectedSquare.classList.remove('selected');
+                selectedSquare = null;
+
+                // Switch Turn
+                currentTurn = currentTurn === 'white' ? 'black' : 'white';
+                document.getElementById('turn-indicator').innerText = `NA TAHU: ${currentTurn.toUpperCase() === 'WHITE' ? 'BÍLÝ' : 'ČERNÝ'}`;
+                updateClockDisplay();
+            }
+        }
+
+        createBoard();
     </script>
 </body>
 </html>
