@@ -2,18 +2,102 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <title>Pravidla</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pravidla - Školní Šachy</title>
+    <style>
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), 
+                        url('https://t3.ftcdn.net/jpg/18/06/45/26/360_F_1806452627_gLpxNyDgzk2WbcSKTGwLKFvE9YjqftnZ.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            color: white;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            margin: 0;
+        }
+
+        .rules-container {
+            max-width: 800px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 40px;
+            border-radius: 25px;
+            border: 2px solid #555;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        h1 { color: #f1c40f; letter-spacing: 5px; text-align: center; border-bottom: 2px solid #f1c40f; padding-bottom: 10px; }
+        h2 { color: #27ae60; margin-top: 30px; border-left: 5px solid #27ae60; padding-left: 15px; }
+        h3 { color: #ecf0f1; background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 5px; }
+
+        .piece-info { display: flex; align-items: center; gap: 15px; margin: 10px 0; }
+        .icon { font-size: 2rem; color: #f1c40f; min-width: 40px; }
+
+        ul { line-height: 1.6; }
+        li { margin-bottom: 8px; }
+
+        .btn-back {
+            display: block;
+            width: 200px;
+            margin: 30px auto 0;
+            padding: 15px;
+            background: #27ae60;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 10px;
+            text-transform: uppercase;
+            transition: transform 0.2s;
+        }
+        .btn-back:hover { transform: scale(1.05); background: #2ecc71; }
+
+        .highlight { color: #e74c3c; font-weight: bold; }
+    </style>
 </head>
 <body>
-    <div class="game-wrapper">
-        <h1>Pravidla</h1>
+
+    <div class="rules-container">
+        <h1>PRAVIDLA ŠACHU</h1>
+
+        <h2>1. Šachovnice a Základy</h2>
+        <p>Šachy se hrají na desce 8×8 (64 polí). Každý hráč začíná s 16 figurami. Bílý táhne první, poté se hráči střídají.</p>
+
+        <h2>2. Jak se pohybují figury</h2>
+        
+        <div class="piece-info"><span class="icon">♔</span> <strong>Král:</strong> 1 pole jakýmkoliv směrem. Nesmí vstoupit do šachu.</div>
+        <div class="piece-info"><span class="icon">♕</span> <strong>Dáma:</strong> Libovolný počet polí vodorovně, svisle i diagonálně.</div>
+        <div class="piece-info"><span class="icon">♖</span> <strong>Věž:</strong> Libovolný počet polí vodorovně nebo svisle.</div>
+        <div class="piece-info"><span class="icon">♗</span> <strong>Střelec:</strong> Libovolný počet polí diagonálně. Zůstává vždy na stejné barvě pole.</div>
+        <div class="piece-info"><span class="icon">♘</span> <strong>Jezdec:</strong> Pohyb do "L" (2 pole jedním směrem + 1 do strany). Jako jediný přeskakuje ostatní figury.</div>
+        <div class="piece-info"><span class="icon">♙</span> <strong>Pěšec:</strong> Pouze vpřed. O 1 pole (při prvním tahu může o 2). Bere šikmo o 1 pole.</div>
+
+        <h3>Speciální pravidla pěšce:</h3>
         <ul>
-            <li>Král: 1 pole</li>
-            <li>Dáma: Všemi směry</li>
-            <li>Jezdec: Tvar L</li>
+            <li><strong>En passant:</strong> Braní mimochodem, pokud soupeřův pěšec skočí o dvě pole vedle vašeho.</li>
+            <li><strong>Proměna:</strong> Při dosažení poslední řady se pěšec změní v Dámu, Věž, Střelce nebo Jezdce.</li>
         </ul>
-        <button class="btn" onclick="window.location.href='index.html'">Zpět</button>
+
+        <h2>3. Speciální tahy</h2>
+        <h3>Rošáda</h3>
+        <p>Tah králem a věží najednou. Podmínky: Král ani věž se ještě nehýbali, mezi nimi nejsou figury a král není v šachu (ani jím neprochází).</p>
+
+        <h2>4. Šach a Mat</h2>
+        <ul>
+            <li><strong>Šach:</strong> Král je pod útokem. Musí se z něj dostat (úskokem, blokem nebo sebráním útočníka).</li>
+            <li><span class="highlight">Šachmat:</span> Král je v šachu a nemá úniku. Útočník vyhrává hru.</li>
+        </ul>
+
+        <h2>5. Remíza</h2>
+        <p>Hra končí nerozhodně, pokud nastane: Pat (hráč nemůže táhnout, ale není v šachu), Trojí opakování pozice, 50 tahů bez braní nebo pohybu pěšce, nebo dohoda hráčů.</p>
+
+        <h2>6. Cíl hry</h2>
+        <p>Hlavním cílem hry je dát soupeřovu králi <strong>ŠACHMAT</strong>.</p>
+
+        <a href="index.html" class="btn-back">Zpět ke hře</a>
     </div>
+
 </body>
 </html>
