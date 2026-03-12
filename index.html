@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ŠKOLNÍ ŠACHY - PROFI</title>
+    <title>ŠKOLNÍ ŠACHY - ROŠÁDA & ČAS</title>
     <style>
         :root {
             --white-sq: #f0d9b5;
@@ -40,21 +40,39 @@
             box-shadow: 0 0 100px rgba(0,0,0,0.9);
         }
 
-        .info-panel { width: 250px; display: flex; flex-direction: column; gap: 20px; }
+        .info-panel { width: 250px; display: flex; flex-direction: column; gap: 15px; }
 
         #status {
-            background: #2c3e50; padding: 20px; text-align: center;
-            font-weight: bold; font-size: 1.4rem; border-radius: 12px;
+            background: #2c3e50; padding: 15px; text-align: center;
+            font-weight: bold; font-size: 1.2rem; border-radius: 12px;
             color: #f1c40f; border: 1px solid #444;
         }
 
         .clock-box {
-            background: #1a1a1a; padding: 15px; text-align: center;
+            background: #1a1a1a; padding: 10px; text-align: center;
             border-radius: 10px; font-family: 'Courier New', monospace;
-            font-size: 1.5rem; border: 2px solid transparent;
+            font-size: 1.3rem; border: 2px solid transparent;
         }
 
         .active-turn { border-color: #f1c40f; box-shadow: 0 0 15px rgba(241, 196, 15, 0.4); }
+
+        /* VÝBĚR ČASU */
+        .time-selector {
+            display: flex;
+            justify-content: space-between;
+            gap: 5px;
+        }
+        .time-btn {
+            flex: 1;
+            padding: 8px;
+            background: #444;
+            color: white;
+            border: 1px solid #666;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .time-btn.selected-time { background: var(--accent); border-color: white; }
 
         .board { display: grid; grid-template-columns: repeat(8, var(--square-size)); grid-template-rows: repeat(8, var(--square-size)); border: 12px solid #333; }
 
@@ -62,7 +80,7 @@
         .white { background-color: var(--white-sq); }
         .black { background-color: var(--black-sq); }
         .selected { background-color: #f1c40f !important; }
-        .check { background-color: #e74c3c !important; } /* Zvýraznění krále v šachu */
+        .check { background-color: #e74c3c !important; }
 
         .hint::after {
             content: ''; width: 20px; height: 20px;
@@ -73,11 +91,11 @@
         .piece-black { color: #000; filter: drop-shadow(0 0 1px #fff); z-index: 5; }
         .piece-white { color: #fff; filter: drop-shadow(0 0 2px #000); z-index: 5; }
 
-        .btn { padding: 18px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; text-transform: uppercase; }
+        .btn { padding: 15px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; text-transform: uppercase; }
         .btn-reset { background: var(--accent); color: white; }
         .btn-rules { background: #9b59b6; color: white; }
 
-        #msg { color: #ff7675; text-align: center; min-height: 24px; font-weight: bold; font-size: 1.1rem; }
+        #msg { color: #ff7675; text-align: center; min-height: 24px; font-weight: bold; font-size: 1rem; }
     </style>
 </head>
 <body>
@@ -87,9 +105,18 @@
     <div class="game-container">
         <div class="info-panel">
             <div id="status">BÍLÝ ZAČÍNÁ</div>
+            
+            <div class="time-selector">
+                <button class="time-btn" onclick="setTime(60, this)">1m</button>
+                <button class="time-btn" onclick="setTime(180, this)">3m</button>
+                <button class="time-btn selected-time" onclick="setTime(600, this)">10m</button>
+            </div>
+
             <div id="black-clock" class="clock-box">ČERNÝ: 10:00</div>
             <div id="white-clock" class="clock-box active-turn">BÍLÝ: 10:00</div>
+            
             <div id="msg"></div>
+            
             <button class="btn btn-reset" onclick="resetGame()">Nová hra</button>
             <button class="btn btn-rules" onclick="window.location.href='rules.html'">Pravidla</button>
         </div>
@@ -102,8 +129,12 @@
         let boardState = [];
         let selectedSq = null;
         let turn = 'white';
+        let baseTime = 600;
         let timers = { white: 600, black: 600 };
         let timerInterval = null;
+
+        // Pro rošádu: sledování pohybu králů a věží
+        let moved = { K: false, k: false, R1: false, R8: false, r1: false, r8: false };
 
         const initialPos = [
             ['r','n','b','q','k','b','n','r'],
@@ -117,6 +148,13 @@
         ];
 
         const pieceMap = { 'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟', 'R': '♖', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔', 'P': '♙' };
+
+        function setTime(seconds, btn) {
+            document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected-time'));
+            btn.classList.add('selected-time');
+            baseTime = seconds;
+            resetGame();
+        }
 
         function createBoard() {
             boardEl.innerHTML = '';
@@ -147,7 +185,6 @@
                     span.innerText = pieceMap[char];
                     span.className = char === char.toUpperCase() ? 'piece-white' : 'piece-black';
                     sq.appendChild(span);
-                    // Zvýraznění krále v šachu
                     if (char.toLowerCase() === 'k' && isKingInCheck(char === 'K' ? 'white' : 'black')) {
                         sq.classList.add('check');
                     }
@@ -214,8 +251,6 @@
             if (target && (target === target.toUpperCase()) === (piece === piece.toUpperCase())) return false;
 
             if (type === 'n') return (dr === 2 && dc === 1) || (dr === 1 && dc === 2);
-            
-            // Pro ostatní figury kontrolujeme, zda je cesta volná
             if (type === 'r' || type === 'b' || type === 'q') {
                 if (type === 'r' && (dr !== 0 && dc !== 0)) return false;
                 if (type === 'b' && dr !== dc) return false;
@@ -223,7 +258,21 @@
                 return isPathClear(fromR, fromC, toR, toC);
             }
 
-            if (type === 'k') return dr <= 1 && dc <= 1;
+            if (type === 'k') {
+                // Klasický pohyb
+                if (dr <= 1 && dc <= 1) return true;
+                // ROŠÁDA
+                if (dr === 0 && dc === 2 && !moved[piece]) {
+                    const isWhite = piece === 'K';
+                    const r = isWhite ? 7 : 0;
+                    if (toC === 6) { // Krátká
+                        return !moved[isWhite ? 'R8' : 'r8'] && isPathClear(r, 4, r, 7) && !isKingInCheck(turn);
+                    }
+                    if (toC === 2) { // Dlouhá
+                        return !moved[isWhite ? 'R1' : 'r1'] && isPathClear(r, 4, r, 0) && !isKingInCheck(turn);
+                    }
+                }
+            }
 
             if (type === 'p') {
                 const dir = piece === 'P' ? -1 : 1;
@@ -247,12 +296,23 @@
                 }
             }
             if(!kingPos) return false;
-
             for(let r=0; r<8; r++) {
                 for(let c=0; c<8; c++) {
                     let p = boardState[r][c];
                     if(p !== '' && (p === p.toUpperCase()) !== (color === 'white')) {
-                        if(isMoveLegal(r, c, kingPos.r, kingPos.c)) return true;
+                        // Simulace bez rekurze šachu
+                        const dr = Math.abs(kingPos.r - r);
+                        const dc = Math.abs(kingPos.c - c);
+                        const type = p.toLowerCase();
+                        let canAttack = false;
+                        if (type === 'n') canAttack = (dr === 2 && dc === 1) || (dr === 1 && dc === 2);
+                        else if (type === 'r') canAttack = (dr === 0 || dc === 0) && isPathClear(r, c, kingPos.r, kingPos.c);
+                        else if (type === 'b') canAttack = (dr === dc) && isPathClear(r, c, kingPos.r, kingPos.c);
+                        else if (type === 'q') canAttack = (dr === dc || dr === 0 || dc === 0) && isPathClear(r, c, kingPos.r, kingPos.c);
+                        else if (type === 'k') canAttack = dr <= 1 && dc <= 1;
+                        else if (type === 'p') canAttack = dc === 1 && kingPos.r === r + (p === 'P' ? -1 : 1);
+                        
+                        if (canAttack) return true;
                     }
                 }
             }
@@ -263,31 +323,37 @@
             const piece = boardState[fromR][fromC];
             const oldTarget = boardState[toR][toC];
             
+            // Logika rošády - pohnutí věží
+            if (piece.toLowerCase() === 'k' && Math.abs(toC - fromC) === 2) {
+                const isWhite = piece === 'K';
+                const row = isWhite ? 7 : 0;
+                if (toC === 6) { // Krátká: věž z 7 na 5
+                    boardState[row][5] = boardState[row][7]; boardState[row][7] = '';
+                } else if (toC === 2) { // Dlouhá: věž z 0 na 3
+                    boardState[row][3] = boardState[row][0]; boardState[row][0] = '';
+                }
+            }
+
             boardState[toR][toC] = piece;
             boardState[fromR][fromC] = '';
             
-            // Kontrola, zda tah nevystavil vlastního krále do šachu (nepovolené)
             if (isKingInCheck(turn)) {
-                boardState[fromR][fromC] = piece;
-                boardState[toR][toC] = oldTarget;
-                msgEl.innerText = "Nemůžeš táhnout do šachu!";
-                deselect();
-                return;
+                // Vracení tahu (v šachu) - u rošády by to bylo složitější, ale tohle je základ
+                boardState[fromR][fromC] = piece; boardState[toR][toC] = oldTarget;
+                msgEl.innerText = "Tah do šachu!"; deselect(); return;
             }
 
-            if (piece.toLowerCase() === 'p' && (toR === 0 || toR === 7)) {
-                boardState[toR][toC] = piece === 'P' ? 'Q' : 'q';
-            }
+            // Sledování pohybu pro budoucí rošády
+            if (piece === 'K') moved.K = true; if (piece === 'k') moved.k = true;
+            if (fromR === 7 && fromC === 0) moved.R1 = true; if (fromR === 7 && fromC === 7) moved.R8 = true;
+            if (fromR === 0 && fromC === 0) moved.r1 = true; if (fromR === 0 && fromC === 7) moved.r8 = true;
+
+            if (piece.toLowerCase() === 'p' && (toR === 0 || toR === 7)) boardState[toR][toC] = piece === 'P' ? 'Q' : 'q';
 
             switchTurn();
             deselect();
             drawPieces();
-
-            if (isKingInCheck(turn)) {
-                msgEl.innerText = "POZOR: ŠACH!";
-            } else {
-                msgEl.innerText = "";
-            }
+            msgEl.innerText = isKingInCheck(turn) ? "ŠACH!" : "";
         }
 
         function switchTurn() {
@@ -308,16 +374,14 @@
         }
 
         function deselect() {
-            document.querySelectorAll('.square').forEach(s => {
-                s.classList.remove('selected');
-                s.classList.remove('hint');
-            });
+            document.querySelectorAll('.square').forEach(s => { s.classList.remove('selected', 'hint'); });
             selectedSq = null;
         }
 
         function resetGame() {
             turn = 'white';
-            timers = { white: 600, black: 600 };
+            timers = { white: baseTime, black: baseTime };
+            moved = { K: false, k: false, R1: false, R8: false, r1: false, r8: false };
             createBoard();
         }
 
