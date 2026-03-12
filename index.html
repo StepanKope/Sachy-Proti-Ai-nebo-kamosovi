@@ -10,7 +10,7 @@
             --white-sq: #ebecd0;
             --black-sq: #779556;
             --text-color: #ecf0f1;
-            --square-size: 80px; /* Bigger board! */
+            --square-size: 80px; 
         }
 
         body {
@@ -19,7 +19,7 @@
             color: var(--text-color);
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: center; /* This centers the title and content */
             padding-top: 30px;
             margin: 0;
         }
@@ -27,20 +27,21 @@
         h1 {
             letter-spacing: 8px;
             margin-bottom: 30px;
+            text-align: center; /* Title centered */
+            width: 100%;
         }
 
-        /* Main container to hold board and buttons side-by-side */
         .main-layout {
             display: flex;
             align-items: flex-start;
+            justify-content: center;
             gap: 40px;
         }
 
-        /* The container for the board and its coordinates */
         .game-area {
             display: grid;
-            grid-template-columns: 30px auto; /* Left numbers + Board */
-            grid-template-rows: auto 30px;    /* Board + Bottom letters */
+            grid-template-columns: 30px auto;
+            grid-template-rows: auto 30px;
         }
 
         .numbers-axis {
@@ -49,6 +50,7 @@
             justify-content: space-around;
             align-items: center;
             font-weight: bold;
+            padding-right: 5px;
         }
 
         .letters-axis {
@@ -57,6 +59,7 @@
             justify-content: space-around;
             align-items: center;
             font-weight: bold;
+            padding-top: 5px;
         }
 
         .board {
@@ -73,13 +76,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px; /* Ready for pieces later */
+            font-size: 55px; /* Size of the chess pieces */
+            cursor: pointer;
+            user-select: none;
         }
 
         .white { background-color: var(--white-sq); }
         .black { background-color: var(--black-sq); }
 
-        /* Buttons Styling */
         .controls {
             display: flex;
             flex-direction: column;
@@ -108,6 +112,10 @@
         .btn-ai { background-color: #3498db; }
         .btn-ai:hover { background-color: #2980b9; }
 
+        /* Style for Black pieces color */
+        .piece-black { color: #000; }
+        /* Style for White pieces color */
+        .piece-white { color: #fff; text-shadow: 0 0 2px #000; }
     </style>
 </head>
 <body>
@@ -138,16 +146,39 @@
     <script>
         const board = document.getElementById('board');
         
+        // Piece layout mapping
+        const initialPieces = {
+            '8': ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
+            '7': ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
+            '2': ['♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙'],
+            '1': ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖']
+        };
+
         for (let r = 8; r >= 1; r--) {
             for (let c = 0; c < 8; c++) {
                 const square = document.createElement('div');
-                const isWhite = (r + c) % 2 !== 0;
-                square.className = `square ${isWhite ? 'white' : 'black'}`;
+                const isWhiteSquare = (r + c) % 2 !== 0;
+                square.className = `square ${isWhiteSquare ? 'white' : 'black'}`;
                 
-                // We no longer put A1/B2 text inside, 
-                // but we give the div an ID for later use
                 const colLetter = String.fromCharCode(65 + c);
                 square.id = colLetter + r;
+
+                // Logic to place pieces
+                let piece = "";
+                let pieceClass = "";
+
+                if (initialPieces[r]) {
+                    piece = initialPieces[r][c];
+                    // CSS class for coloring (rows 7-8 are black pieces, 1-2 are white)
+                    pieceClass = (r > 4) ? 'piece-black' : 'piece-white';
+                }
+
+                if (piece) {
+                    const pieceSpan = document.createElement('span');
+                    pieceSpan.className = pieceClass;
+                    pieceSpan.innerText = piece;
+                    square.appendChild(pieceSpan);
+                }
                 
                 board.appendChild(square);
             }
