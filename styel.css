@@ -1,72 +1,117 @@
 :root {
-    --white-sq: #ebecd0;
-    --black-sq: #779556;
-    --square-size: 70px; 
+    --white-sq: #f0d9b5;
+    --black-sq: #b58863;
+    --square-size: 70px;
     --accent: #27ae60;
-    --sidebar-bg: rgba(0, 0, 0, 0.4);
+    --bg-color: #1a1a1a;
 }
 
 body {
-    font-family: 'Segoe UI', sans-serif;
-    background: #2c3e50;
+    background-color: var(--bg-color);
     color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    min-height: 100vh;
+    padding-top: 20px;
     margin: 0;
+}
+
+h1 {
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
 }
 
 .game-container {
     display: flex;
-    gap: 30px;
-    background: rgba(0, 0, 0, 0.8);
+    gap: 40px;
+    background: #2c3e50;
     padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    border-radius: 20px;
+    box-shadow: 0 0 50px rgba(0,0,0,0.8);
+    border: 1px solid #3e5871;
 }
 
-/* Sidebar for Clock and Info */
+/* Informační Panel */
 .info-panel {
-    width: 200px;
-    background: var(--sidebar-bg);
-    padding: 20px;
-    border-radius: 10px;
+    width: 250px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
+}
+
+#status {
+    background: #16a085;
+    padding: 15px;
+    text-align: center;
+    border-radius: 8px;
+    font-size: 1.3rem;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
 }
 
 .clock-box {
-    text-align: center;
-    font-size: 1.5rem;
+    background: #34495e;
     padding: 10px;
-    border: 2px solid #555;
+    text-align: center;
+    font-size: 1.2rem;
     border-radius: 8px;
+    border: 2px solid transparent;
+    transition: all 0.3s;
 }
 
 .active-turn {
-    border-color: var(--accent);
-    box-shadow: 0 0 10px var(--accent);
+    border-color: #f1c40f;
+    background: #415b76;
+    transform: scale(1.05);
 }
 
+.move-history {
+    background: rgba(0,0,0,0.3);
+    padding: 15px;
+    border-radius: 8px;
+    flex-grow: 1;
+    font-size: 0.9rem;
+}
+
+/* Šachovnice */
 .board {
     display: grid;
     grid-template-columns: repeat(8, var(--square-size));
     grid-template-rows: repeat(8, var(--square-size));
-    border: 8px solid #34495e;
+    border: 10px solid #1a1a1a;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
 }
 
-/* Same square/piece code as before... */
-.square { width: var(--square-size); height: var(--square-size); display: flex; align-items: center; justify-content: center; font-size: 50px; cursor: pointer; }
+.square {
+    width: var(--square-size);
+    height: var(--square-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 50px;
+    cursor: pointer;
+}
+
 .white { background-color: var(--white-sq); }
 .black { background-color: var(--black-sq); }
 .selected { background-color: #f1c40f !important; }
-.piece-black { color: #000; }
-.piece-white { color: #fff; }
 
+.piece-black { color: #000; filter: drop-shadow(0 0 2px rgba(255,255,255,0.2)); }
+.piece-white { color: #fff; filter: drop-shadow(0 0 2px rgba(0,0,0,0.8)); }
+
+/* Tlačítka */
 .btn {
-    background: var(--accent); color: white; border: none; padding: 12px;
-    border-radius: 5px; font-weight: bold; cursor: pointer; text-transform: uppercase;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: background 0.2s;
 }
+
+.btn-reset { background: #e67e22; color: white; }
+.btn-reset:hover { background: #d35400; }
+.btn-rules { background: #9b59b6; color: white; }
+.btn-rules:hover { background: #8e44ad; }
