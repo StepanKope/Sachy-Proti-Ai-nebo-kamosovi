@@ -5,43 +5,58 @@
     <title>Šachy</title>
     <style>
         :root {
-            --bg-color: #2c3e50;
-            --board-border: #34495e;
             --white-sq: #ebecd0;
             --black-sq: #779556;
-            --text-color: #ecf0f1;
             --square-size: 80px; 
         }
 
         body {
             font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            /* Background Image Setup */
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                        url('https://wallpaperaccess.com/full/1150495.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
             display: flex;
             flex-direction: column;
-            align-items: center; /* This centers the title and content */
-            padding-top: 30px;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
             margin: 0;
         }
 
+        /* Container for everything to keep it organized */
+        .game-wrapper {
+            background: rgba(0, 0, 0, 0.6); /* Semi-transparent dark box */
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px); /* Blurs the wallpaper slightly behind the board */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+
         h1 {
-            letter-spacing: 8px;
-            margin-bottom: 30px;
-            text-align: center; /* Title centered */
-            width: 100%;
+            letter-spacing: 15px;
+            margin: 0 0 30px 0;
+            text-align: center;
+            font-size: 3rem;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
         }
 
         .main-layout {
             display: flex;
             align-items: flex-start;
-            justify-content: center;
-            gap: 40px;
+            gap: 50px;
         }
 
         .game-area {
             display: grid;
-            grid-template-columns: 30px auto;
-            grid-template-rows: auto 30px;
+            grid-template-columns: 40px auto;
+            grid-template-rows: auto 40px;
         }
 
         .numbers-axis {
@@ -50,7 +65,7 @@
             justify-content: space-around;
             align-items: center;
             font-weight: bold;
-            padding-right: 5px;
+            font-size: 1.2rem;
         }
 
         .letters-axis {
@@ -59,15 +74,16 @@
             justify-content: space-around;
             align-items: center;
             font-weight: bold;
-            padding-top: 5px;
+            font-size: 1.2rem;
+            padding-top: 10px;
         }
 
         .board {
             display: grid;
             grid-template-columns: repeat(8, var(--square-size));
             grid-template-rows: repeat(8, var(--square-size));
-            border: 5px solid var(--board-border);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            border: 8px solid #34495e;
+            border-radius: 4px;
         }
 
         .square {
@@ -76,9 +92,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 55px; /* Size of the chess pieces */
+            font-size: 55px;
             cursor: pointer;
-            user-select: none;
         }
 
         .white { background-color: var(--white-sq); }
@@ -87,66 +102,66 @@
         .controls {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            padding-top: 5px;
+            gap: 20px;
+            justify-content: center;
+            height: 100%;
         }
 
         .btn {
             background-color: #e67e22;
             color: white;
             border: none;
-            padding: 15px 25px;
-            font-size: 1.1rem;
+            padding: 20px 30px;
+            font-size: 1.2rem;
             font-weight: bold;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
-            min-width: 180px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
         .btn:hover {
             background-color: #d35400;
-            transform: scale(1.05);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
         }
 
         .btn-ai { background-color: #3498db; }
         .btn-ai:hover { background-color: #2980b9; }
 
-        /* Style for Black pieces color */
-        .piece-black { color: #000; }
-        /* Style for White pieces color */
-        .piece-white { color: #fff; text-shadow: 0 0 2px #000; }
+        .piece-black { color: #000; filter: drop-shadow(0 0 1px #fff); }
+        .piece-white { color: #fff; filter: drop-shadow(0 0 2px #000); }
     </style>
 </head>
 <body>
 
-    <h1>ŠACHY</h1>
+    <div class="game-wrapper">
+        <h1>ŠACHY</h1>
 
-    <div class="main-layout">
-        <div class="game-area">
-            <div class="numbers-axis">
-                <div>8</div><div>7</div><div>6</div><div>5</div>
-                <div>4</div><div>3</div><div>2</div><div>1</div>
+        <div class="main-layout">
+            <div class="game-area">
+                <div class="numbers-axis">
+                    <div>8</div><div>7</div><div>6</div><div>5</div>
+                    <div>4</div><div>3</div><div>2</div><div>1</div>
+                </div>
+
+                <div class="board" id="board"></div>
+
+                <div class="letters-axis">
+                    <div>A</div><div>B</div><div>C</div><div>D</div>
+                    <div>E</div><div>F</div><div>G</div><div>H</div>
+                </div>
             </div>
 
-            <div class="board" id="board"></div>
-
-            <div class="letters-axis">
-                <div>A</div><div>B</div><div>C</div><div>D</div>
-                <div>E</div><div>F</div><div>G</div><div>H</div>
+            <div class="controls">
+                <button class="btn" onclick="alert('Hra proti kámošovi!')">Proti kámošovi</button>
+                <button class="btn btn-ai" onclick="alert('AI se připravuje...')">Proti AI</button>
             </div>
-        </div>
-
-        <div class="controls">
-            <button class="btn" onclick="alert('Hra proti kámošovi začíná!')">Proti kámošovi</button>
-            <button class="btn btn-ai" onclick="alert('AI se připravuje...')">Proti AI</button>
         </div>
     </div>
 
     <script>
         const board = document.getElementById('board');
-        
-        // Piece layout mapping
         const initialPieces = {
             '8': ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
             '7': ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
@@ -160,30 +175,17 @@
                 const isWhiteSquare = (r + c) % 2 !== 0;
                 square.className = `square ${isWhiteSquare ? 'white' : 'black'}`;
                 
-                const colLetter = String.fromCharCode(65 + c);
-                square.id = colLetter + r;
-
-                // Logic to place pieces
-                let piece = "";
-                let pieceClass = "";
-
                 if (initialPieces[r]) {
-                    piece = initialPieces[r][c];
-                    // CSS class for coloring (rows 7-8 are black pieces, 1-2 are white)
-                    pieceClass = (r > 4) ? 'piece-black' : 'piece-white';
+                    const piece = initialPieces[r][c];
+                    const pieceClass = (r > 4) ? 'piece-black' : 'piece-white';
+                    const span = document.createElement('span');
+                    span.className = pieceClass;
+                    span.innerText = piece;
+                    square.appendChild(span);
                 }
-
-                if (piece) {
-                    const pieceSpan = document.createElement('span');
-                    pieceSpan.className = pieceClass;
-                    pieceSpan.innerText = piece;
-                    square.appendChild(pieceSpan);
-                }
-                
                 board.appendChild(square);
             }
         }
     </script>
-
 </body>
 </html>
