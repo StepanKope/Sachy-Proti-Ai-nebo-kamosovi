@@ -2,8 +2,131 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <title>ŠKOLNÍ ŠACHY - PROJEKT</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ŠKOLNÍ ŠACHY - KOMPLETNÍ PROJEKT</title>
+    <style>
+        /* VEŠKERÝ DESIGN (CSS) */
+        :root {
+            --white-sq: #f0d9b5;
+            --black-sq: #b58863;
+            --square-size: 70px;
+            --accent: #27ae60;
+        }
+
+        body {
+            /* TVŮJ ODKAZ NA POZADÍ */
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                        url('https://t3.ftcdn.net/jpg/18/06/45/26/360_F_1806452627_gLpxNyDgzk2WbcSKTGwLKFvE9YjqftnZ.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .main-title {
+            font-size: 3rem;
+            letter-spacing: 10px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(0,0,0,1);
+        }
+
+        .game-container {
+            display: flex;
+            gap: 40px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 40px;
+            border-radius: 25px;
+            border: 3px solid #555;
+            box-shadow: 0 0 100px rgba(0,0,0,0.9);
+        }
+
+        /* SIDEBAR */
+        .info-panel {
+            width: 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #status {
+            background: #2c3e50;
+            padding: 20px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.4rem;
+            border-radius: 12px;
+            color: #f1c40f;
+            border: 1px solid #444;
+        }
+
+        .clock-box {
+            background: #1a1a1a;
+            padding: 15px;
+            text-align: center;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.5rem;
+            border: 2px solid transparent;
+        }
+
+        .active-turn {
+            border-color: #f1c40f;
+            box-shadow: 0 0 15px rgba(241, 196, 15, 0.4);
+        }
+
+        /* ŠACHOVNICE */
+        .board {
+            display: grid;
+            grid-template-columns: repeat(8, var(--square-size));
+            grid-template-rows: repeat(8, var(--square-size));
+            border: 12px solid #333;
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+        }
+
+        .square {
+            width: var(--square-size);
+            height: var(--square-size);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 55px;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .white { background-color: var(--white-sq); }
+        .black { background-color: var(--black-sq); }
+        .selected { background-color: #f1c40f !important; }
+
+        /* FIGURKY */
+        .piece-black { color: #000; filter: drop-shadow(0 0 1px #fff); }
+        .piece-white { color: #fff; filter: drop-shadow(0 0 2px #000); }
+
+        /* TLAČÍTKA */
+        .btn {
+            padding: 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            text-transform: uppercase;
+            transition: transform 0.2s;
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn-reset { background: var(--accent); color: white; }
+        .btn-rules { background: #9b59b6; color: white; }
+
+        #msg { color: #ff7675; text-align: center; min-height: 24px; font-weight: bold; }
+
+    </style>
 </head>
 <body>
 
@@ -11,28 +134,22 @@
 
     <div class="game-container">
         <div class="info-panel">
-            <div id="status">NA TAHU: BÍLÝ</div>
+            <div id="status">BÍLÝ ZAČÍNÁ</div>
             
-            <div class="timers">
-                <div class="clock-box" id="black-clock">ČERNÝ: 10:00</div>
-                <div class="clock-box active-turn" id="white-clock">BÍLÝ: 10:00</div>
-            </div>
+            <div id="black-clock" class="clock-box">ČERNÝ: 10:00</div>
+            <div id="white-clock" class="clock-box active-turn">BÍLÝ: 10:00</div>
 
-            <div class="move-history">
-                <strong>Zprávy:</strong>
-                <div id="msg">Hra připravena.</div>
-            </div>
+            <div id="msg"></div>
 
-            <div class="controls">
-                <button class="btn btn-reset" onclick="resetGame()">Restart hry</button>
-                <button class="btn btn-rules" onclick="window.location.href='rules.html'">Pravidla</button>
-            </div>
+            <button class="btn btn-reset" onclick="resetGame()">Nová hra</button>
+            <button class="btn btn-rules" onclick="window.location.href='rules.html'">Pravidla</button>
         </div>
 
         <div class="board" id="board"></div>
     </div>
 
     <script>
+        /* LOGIKA HRY (JavaScript) */
         const boardEl = document.getElementById('board');
         const msgEl = document.getElementById('msg');
         let boardState = [];
@@ -41,6 +158,7 @@
         let timers = { white: 600, black: 600 };
         let timerInterval = null;
 
+        // Startovní pozice všech figurek
         const initialPos = [
             ['r','n','b','q','k','b','n','r'],
             ['p','p','p','p','p','p','p','p'],
@@ -52,6 +170,7 @@
             ['R','N','B','Q','K','B','N','R']
         ];
 
+        // Mapa symbolů pro figurky
         const pieceMap = {
             'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟',
             'R': '♖', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔', 'P': '♙'
@@ -93,10 +212,6 @@
             const isWhite = piece && piece === piece.toUpperCase();
             
             if (selectedSq) {
-                if (selectedSq.r === r && selectedSq.c === c) {
-                    deselect();
-                    return;
-                }
                 movePiece(selectedSq.r, selectedSq.c, r, c);
             } else {
                 if (piece && ((turn === 'white' && isWhite) || (turn === 'black' && !isWhite))) {
@@ -109,37 +224,40 @@
         function movePiece(fromR, fromC, toR, toC) {
             const piece = boardState[fromR][fromC];
             const target = boardState[toR][toC];
-            const diffR = Math.abs(toR - fromR);
-            const diffC = Math.abs(toC - fromC);
+            const dr = Math.abs(toR - fromR);
+            const dc = Math.abs(toC - fromC);
             const type = piece.toLowerCase();
-            let isLegal = false;
+            let legal = false;
 
+            // Nelze brát vlastní figury
             if (target && (target === target.toUpperCase()) === (piece === piece.toUpperCase())) {
                 deselect();
                 return;
             }
 
-            if (type === 'n') { if ((diffR === 2 && diffC === 1) || (diffR === 1 && diffC === 2)) isLegal = true; } 
-            else if (type === 'b') { if (diffR === diffC) isLegal = true; }
-            else if (type === 'r') { if (diffR === 0 || diffC === 0) isLegal = true; }
-            else if (type === 'q') { if (diffR === diffC || diffR === 0 || diffC === 0) isLegal = true; }
-            else if (type === 'k') { if (diffR <= 1 && diffC <= 1) isLegal = true; }
-            else if (type === 'p') { 
+            // Pravidla pohybu
+            if (type === 'n') { if ((dr === 2 && dc === 1) || (dr === 1 && dc === 2)) legal = true; }
+            else if (type === 'b') { if (dr === dc) legal = true; }
+            else if (type === 'r') { if (dr === 0 || dc === 0) legal = true; }
+            else if (type === 'q') { if (dr === dc || dr === 0 || dc === 0) legal = true; }
+            else if (type === 'k') { if (dr <= 1 && dc <= 1) legal = true; }
+            else if (type === 'p') {
                 const dir = piece === 'P' ? -1 : 1;
-                if (toC === fromC && !target) {
-                    if (toR === fromR + dir) isLegal = true;
-                    if (((fromR === 6 && piece === 'P') || (fromR === 1 && piece === 'p')) && toR === fromR + (2 * dir)) isLegal = true;
+                if (dc === 0 && !target) {
+                    if (toR === fromR + dir) legal = true;
+                    if (((fromR === 6 && piece === 'P') || (fromR === 1 && piece === 'p')) && toR === fromR + (2 * dir)) legal = true;
                 }
-                if (diffC === 1 && toR === fromR + dir && target) isLegal = true;
+                if (dc === 1 && toR === fromR + dir && target) legal = true;
             }
 
-            if (isLegal) {
+            if (legal) {
                 boardState[toR][toC] = piece;
                 boardState[fromR][fromC] = '';
-                if (type === 'p' && (toR === 0 || toR === 7)) boardState[toR][toC] = (piece === 'P') ? 'Q' : 'q';
+                // Proměna pěšce
+                if (type === 'p' && (toR === 0 || toR === 7)) boardState[toR][toC] = piece === 'P' ? 'Q' : 'q';
                 switchTurn();
             } else {
-                msgEl.innerText = "Neplatný tah!";
+                msgEl.innerText = "Takhle se tato figura nehýbe!";
                 setTimeout(() => msgEl.innerText = "", 1500);
             }
             deselect();
@@ -147,8 +265,8 @@
         }
 
         function switchTurn() {
-            turn = (turn === 'white') ? 'black' : 'white';
-            document.getElementById('status').innerText = `NA TAHU: ${turn === 'white' ? 'BÍLÝ' : 'ČERNÝ'}`;
+            turn = turn === 'white' ? 'black' : 'white';
+            document.getElementById('status').innerText = turn === 'white' ? "TAH: BÍLÝ" : "TAH: ČERNÝ";
             document.getElementById('white-clock').classList.toggle('active-turn', turn === 'white');
             document.getElementById('black-clock').classList.toggle('active-turn', turn === 'black');
         }
@@ -156,19 +274,11 @@
         function startTimer() {
             timerInterval = setInterval(() => {
                 timers[turn]--;
-                updateClockDisplay();
-                if (timers[turn] <= 0) {
-                    clearInterval(timerInterval);
-                    alert("Čas vypršel!");
-                    resetGame();
-                }
+                const fmt = (s) => `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
+                document.getElementById('white-clock').innerText = `BÍLÝ: ${fmt(timers.white)}`;
+                document.getElementById('black-clock').innerText = `ČERNÝ: ${fmt(timers.black)}`;
+                if (timers[turn] <= 0) { clearInterval(timerInterval); alert("Čas vypršel!"); resetGame(); }
             }, 1000);
-        }
-
-        function updateClockDisplay() {
-            const format = (s) => `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
-            document.getElementById('white-clock').innerText = `BÍLÝ: ${format(timers.white)}`;
-            document.getElementById('black-clock').innerText = `ČERNÝ: ${format(timers.black)}`;
         }
 
         function deselect() {
