@@ -1,0 +1,72 @@
+:root {
+    --white-sq: #ebecd0;
+    --black-sq: #779556;
+    --square-size: 70px; 
+    --accent: #27ae60;
+    --sidebar-bg: rgba(0, 0, 0, 0.4);
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #2c3e50;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.game-container {
+    display: flex;
+    gap: 30px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+/* Sidebar for Clock and Info */
+.info-panel {
+    width: 200px;
+    background: var(--sidebar-bg);
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.clock-box {
+    text-align: center;
+    font-size: 1.5rem;
+    padding: 10px;
+    border: 2px solid #555;
+    border-radius: 8px;
+}
+
+.active-turn {
+    border-color: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(8, var(--square-size));
+    grid-template-rows: repeat(8, var(--square-size));
+    border: 8px solid #34495e;
+}
+
+/* Same square/piece code as before... */
+.square { width: var(--square-size); height: var(--square-size); display: flex; align-items: center; justify-content: center; font-size: 50px; cursor: pointer; }
+.white { background-color: var(--white-sq); }
+.black { background-color: var(--black-sq); }
+.selected { background-color: #f1c40f !important; }
+.piece-black { color: #000; }
+.piece-white { color: #fff; }
+
+.btn {
+    background: var(--accent); color: white; border: none; padding: 12px;
+    border-radius: 5px; font-weight: bold; cursor: pointer; text-transform: uppercase;
+}
