@@ -7,16 +7,15 @@
         :root {
             --white-sq: #ebecd0;
             --black-sq: #779556;
-            --square-size: 80px; 
+            --square-size: 70px; 
             --accent: #27ae60;
         }
 
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
                         url('https://t3.ftcdn.net/jpg/18/06/45/26/360_F_1806452627_gLpxNyDgzk2WbcSKTGwLKFvE9YjqftnZ.jpg');
             background-size: cover;
-            background-position: center;
             background-attachment: fixed;
             color: white;
             display: flex;
@@ -29,7 +28,7 @@
 
         .game-wrapper {
             background: rgba(0, 0, 0, 0.8);
-            padding: 30px;
+            padding: 25px;
             border-radius: 20px;
             backdrop-filter: blur(10px);
             display: flex;
@@ -38,46 +37,22 @@
             box-shadow: 0 25px 50px rgba(0,0,0,0.9);
         }
 
-        h1 { letter-spacing: 10px; margin: 0 0 20px 0; font-size: 2.5rem; text-align: center; }
+        h1 { letter-spacing: 8px; margin: 0 0 15px 0; font-size: 2.2rem; }
 
-        .main-layout { display: flex; align-items: stretch; gap: 30px; }
+        .main-layout { display: flex; gap: 25px; }
 
-        /* Left Sidebar: Timers */
-        .timer-sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            width: 150px;
-        }
-
+        /* Left Sidebar */
+        .sidebar { display: flex; flex-direction: column; gap: 10px; width: 140px; }
         .timer-btn {
-            background: #34495e;
-            color: white;
-            border: 1px solid #555;
-            padding: 10px;
-            cursor: pointer;
-            border-radius: 5px;
-            font-weight: bold;
+            background: #34495e; color: white; border: 1px solid #555;
+            padding: 8px; cursor: pointer; border-radius: 5px; font-weight: bold;
         }
-        .timer-btn:hover { background: #48637f; }
-        .active-mode { border-color: var(--accent); background: var(--accent) !important; }
+        .active-mode { background: var(--accent) !important; border-color: white; }
+        
+        .clock { font-size: 1.4rem; font-family: monospace; text-align: center; margin: 5px 0; }
+        .active-clock { color: #f1c40f; text-shadow: 0 0 8px #f1c40f; }
 
-        .clocks-display {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            text-align: center;
-        }
-        .clock { font-size: 1.5rem; font-family: monospace; margin: 5px 0; }
-        .active-clock { color: #f1c40f; text-shadow: 0 0 10px #f1c40f; }
-
-        /* Board Area */
-        .game-area { display: grid; grid-template-columns: 30px auto; grid-template-rows: auto 30px; }
-        .numbers-axis, .letters-axis { font-weight: bold; color: #bdc3c7; display: flex; justify-content: space-around; }
-        .numbers-axis { flex-direction: column; align-items: center; }
-        .letters-axis { grid-column: 2; padding-top: 5px; }
-
+        /* Board */
         .board {
             display: grid;
             grid-template-columns: repeat(8, var(--square-size));
@@ -91,186 +66,191 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 60px;
+            font-size: 50px;
             cursor: pointer;
+            user-select: none;
         }
         .white { background-color: var(--white-sq); }
         .black { background-color: var(--black-sq); }
         .selected { background-color: #f1c40f !important; }
 
-        /* Right Controls */
-        .controls { display: flex; flex-direction: column; gap: 15px; }
-        .btn {
-            background-color: var(--accent);
-            color: white; border: none; padding: 15px 20px;
-            font-size: 1rem; font-weight: bold; border-radius: 8px;
-            cursor: pointer; min-width: 180px;
-        }
-        .btn-ai { background-color: #2980b9; }
-
+        /* Pieces */
         .piece-black { color: #000; filter: drop-shadow(0 0 1px #fff); }
         .piece-white { color: #fff; filter: drop-shadow(0 0 2px #000); }
-        
-        #turn-indicator { margin-bottom: 10px; font-weight: bold; color: var(--accent); }
+
+        /* Controls */
+        .controls { display: flex; flex-direction: column; gap: 10px; }
+        .btn {
+            background-color: var(--accent); color: white; border: none;
+            padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;
+        }
+        .btn-rules { background-color: #9b59b6; }
     </style>
 </head>
 <body>
 
     <div class="game-wrapper">
-        <h1>ŠKOLNÍ ŠACHY</h1>
-        <div id="turn-indicator">NA TAHU: BÍLÝ</div>
+        <h1 id="main-title">ŠKOLNÍ ŠACHY</h1>
+        <div id="status" style="margin-bottom: 10px; font-weight: bold; color: #f1c40f;">TAH: BÍLÝ</div>
 
         <div class="main-layout">
-            <div class="timer-sidebar">
-                <button class="timer-btn" onclick="setTimer(60, this)">1 Minuta</button>
-                <button class="timer-btn" onclick="setTimer(180, this)">3 Minuty</button>
-                <button class="timer-btn" onclick="setTimer(600, this)">10 Minut</button>
-                <button class="timer-btn active-mode" onclick="setTimer(null, this)">Bez limitu</button>
+            <div class="sidebar">
+                <button class="timer-btn" onclick="setTimer(60)">1 Minuta</button>
+                <button class="timer-btn" onclick="setTimer(180)">3 Minuty</button>
+                <button class="timer-btn" onclick="setTimer(600)">10 Minut</button>
+                <button class="timer-btn active-mode" id="no-limit-btn" onclick="setTimer(null)">Bez limitu</button>
                 
-                <div class="clocks-display">
-                    <div>Černý</div>
+                <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; margin-top: 10px;">
                     <div id="clock-black" class="clock">--:--</div>
-                    <hr>
-                    <div>Bílý</div>
+                    <div style="text-align: center; font-size: 0.7rem; color: #aaa;">VS</div>
                     <div id="clock-white" class="clock">--:--</div>
                 </div>
             </div>
 
-            <div class="game-area">
-                <div class="numbers-axis"><div>8</div><div>7</div><div>6</div><div>5</div><div>4</div><div>3</div><div>2</div><div>1</div></div>
-                <div class="board" id="board"></div>
-                <div class="letters-axis"><div>A</div><div>B</div><div>C</div><div>D</div><div>E</div><div>F</div><div>G</div><div>H</div></div>
-            </div>
+            <div class="board" id="board"></div>
 
             <div class="controls">
-                <button class="btn" onclick="resetBoard()">Restartovat hru</button>
-                <button class="btn btn-ai">Proti AI (Brzy)</button>
+                <button class="btn" onclick="resetGame()">Restart hry</button>
+                <button class="btn btn-rules" onclick="showRules()">Pravidla</button>
+                <div id="msg" style="font-size: 0.8rem; color: #ff7675; width: 150px;"></div>
             </div>
         </div>
     </div>
 
     <script>
         const boardEl = document.getElementById('board');
-        let selectedSquare = null;
-        let currentTurn = 'white'; // 'white' or 'black'
-        
-        // Timer variables
-        let timers = { white: 0, black: 0 };
-        let timerActive = false;
+        let boardState = [];
+        let selectedSq = null;
+        let turn = 'white';
+        let timers = { white: null, black: null };
         let interval = null;
 
-        function updateClockDisplay() {
-            const format = (s) => {
-                if (s === null) return "--:--";
-                let m = Math.floor(s / 60);
-                let sec = s % 60;
-                return `${m}:${sec < 10 ? '0' : ''}${sec}`;
-            };
-            document.getElementById('clock-white').innerText = format(timers.white);
-            document.getElementById('clock-black').innerText = format(timers.black);
-            
-            document.getElementById('clock-white').classList.toggle('active-clock', currentTurn === 'white' && timerActive);
-            document.getElementById('clock-black').classList.toggle('active-clock', currentTurn === 'black' && timerActive);
+        const initialPos = [
+            ['r','n','b','q','k','b','n','r'],
+            ['p','p','p','p','p','p','p','p'],
+            ['','','','','','','',''],
+            ['','','','','','','',''],
+            ['','','','','','','',''],
+            ['','','','','','','',''],
+            ['P','P','P','P','P','P','P','P'],
+            ['R','N','B','Q','K','B','N','R']
+        ];
+
+        const pieceMap = {
+            'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟',
+            'R': '♖', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔', 'P': '♙'
+        };
+
+        function createBoard() {
+            boardEl.innerHTML = '';
+            for (let r = 0; r < 8; r++) {
+                boardState[r] = [...initialPos[r]];
+                for (let c = 0; c < 8; c++) {
+                    const sq = document.createElement('div');
+                    sq.className = `square ${(r + c) % 2 === 0 ? 'white' : 'black'}`;
+                    sq.dataset.r = r; sq.dataset.c = c;
+                    sq.onclick = () => handleSquareClick(r, c);
+                    boardEl.appendChild(sq);
+                }
+            }
+            drawPieces();
         }
 
-        function setTimer(seconds, btn) {
-            clearInterval(interval);
-            document.querySelectorAll('.timer-btn').forEach(b => b.classList.remove('active-mode'));
-            btn.classList.add('active-mode');
+        function drawPieces() {
+            const squares = document.querySelectorAll('.square');
+            squares.forEach(sq => {
+                const r = sq.dataset.r; const c = sq.dataset.c;
+                const char = boardState[r][c];
+                sq.innerHTML = '';
+                if (char) {
+                    const span = document.createElement('span');
+                    span.innerText = pieceMap[char];
+                    span.className = char === char.toUpperCase() ? 'piece-white' : 'piece-black';
+                    sq.appendChild(span);
+                }
+            });
+        }
+
+        function handleSquareClick(r, c) {
+            const piece = boardState[r][c];
+            const isWhite = piece && piece === piece.toUpperCase();
             
-            if (seconds === null) {
-                timers.white = null; timers.black = null;
-                timerActive = false;
+            if (selectedSq) {
+                if (selectedSq.r === r && selectedSq.c === c) {
+                    deselect();
+                    return;
+                }
+                movePiece(selectedSq.r, selectedSq.c, r, c);
             } else {
-                timers.white = seconds; timers.black = seconds;
-                timerActive = true;
-                startTicking();
+                if (piece && ((turn === 'white' && isWhite) || (turn === 'black' && !isWhite))) {
+                    selectedSq = { r, c };
+                    document.querySelector(`[data-r="${r}"][data-c="${c}"]`).classList.add('selected');
+                }
             }
+        }
+
+        function movePiece(fromR, fromC, toR, toC) {
+            // Simplified rule check (Logic from your Python rules)
+            const movingPiece = boardState[fromR][fromC];
+            const targetPiece = boardState[toR][toC];
+            
+            // Basic check: can't capture own piece
+            if (targetPiece && (targetPiece === targetPiece.toUpperCase()) === (movingPiece === movingPiece.toUpperCase())) {
+                deselect();
+                return;
+            }
+
+            // Perform Move
+            boardState[toR][toC] = movingPiece;
+            boardState[fromR][fromC] = '';
+            
+            turn = turn === 'white' ? 'black' : 'white';
+            document.getElementById('status').innerText = `TAH: ${turn === 'white' ? 'BÍLÝ' : 'ČERNÝ'}`;
+            
+            deselect();
+            drawPieces();
             updateClockDisplay();
         }
 
-        function startTicking() {
+        function deselect() {
+            document.querySelectorAll('.square').forEach(s => s.classList.remove('selected'));
+            selectedSq = null;
+        }
+
+        function setTimer(sec) {
             clearInterval(interval);
-            interval = setInterval(() => {
-                if (!timerActive) return;
-                if (timers[currentTurn] > 0) {
-                    timers[currentTurn]--;
-                    updateClockDisplay();
-                } else {
-                    alert("Čas vypršel! Konec hry.");
-                    clearInterval(interval);
-                }
-            }, 1000);
-        }
-
-        function resetBoard() {
-            boardEl.innerHTML = '';
-            currentTurn = 'white';
-            document.getElementById('turn-indicator').innerText = "NA TAHU: BÍLÝ";
-            createBoard();
-        }
-
-        function createBoard() {
-            for (let r = 8; r >= 1; r--) {
-                for (let c = 0; c < 8; c++) {
-                    const square = document.createElement('div');
-                    const isWhiteSquare = (r + c) % 2 !== 0;
-                    square.className = `square ${isWhiteSquare ? 'white' : 'black'}`;
-                    square.dataset.row = r;
-                    square.dataset.col = c;
-
-                    let piece = "";
-                    let pSide = "";
-
-                    if (r === 8) { piece = ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'][c]; pSide = "black"; }
-                    else if (r === 7) { piece = '♟'; pSide = "black"; }
-                    else if (r === 2) { piece = '♙'; pSide = "white"; }
-                    else if (r === 1) { piece = ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖'][c]; pSide = "white"; }
-
-                    if (piece) {
-                        const span = document.createElement('span');
-                        span.className = pSide === "black" ? "piece-black" : "piece-white";
-                        span.innerText = piece;
-                        span.dataset.side = pSide;
-                        square.appendChild(span);
+            timers.white = sec; timers.black = sec;
+            document.querySelectorAll('.timer-btn').forEach(b => b.classList.remove('active-mode'));
+            if (!sec) {
+                document.getElementById('no-limit-btn').classList.add('active-mode');
+            }
+            updateClockDisplay();
+            if (sec) {
+                interval = setInterval(() => {
+                    if (timers[turn] > 0) {
+                        timers[turn]--;
+                        updateClockDisplay();
                     }
-
-                    square.onclick = () => handleSquareClick(square);
-                    boardEl.appendChild(square);
-                }
+                }, 1000);
             }
         }
 
-        function handleSquareClick(square) {
-            const piece = square.querySelector('span');
+        function updateClockDisplay() {
+            const fmt = (s) => s === null ? "--:--" : `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
+            document.getElementById('clock-white').innerText = fmt(timers.white);
+            document.getElementById('clock-black').innerText = fmt(timers.black);
+            document.getElementById('clock-white').classList.toggle('active-clock', turn === 'white' && timers.white !== null);
+            document.getElementById('clock-black').classList.toggle('active-clock', turn === 'black' && timers.black !== null);
+        }
 
-            // Selecting a piece
-            if (!selectedSquare) {
-                if (piece && piece.dataset.side === currentTurn) {
-                    selectedSquare = square;
-                    square.classList.add('selected');
-                }
-            } 
-            // Moving a piece
-            else {
-                if (square === selectedSquare) {
-                    selectedSquare.classList.remove('selected');
-                    selectedSquare = null;
-                    return;
-                }
+        function showRules() {
+            window.alert("Pravidla:\n- Král: 1 pole\n- Dáma: kamkoliv\n- Jezdec: do L\n- Pěšec: o 1 pole (o 2 na startu)");
+        }
 
-                // Execute move
-                const movingPiece = selectedSquare.querySelector('span');
-                square.innerHTML = ''; // Capture piece if exists
-                square.appendChild(movingPiece);
-                selectedSquare.classList.remove('selected');
-                selectedSquare = null;
-
-                // Switch Turn
-                currentTurn = currentTurn === 'white' ? 'black' : 'white';
-                document.getElementById('turn-indicator').innerText = `NA TAHU: ${currentTurn.toUpperCase() === 'WHITE' ? 'BÍLÝ' : 'ČERNÝ'}`;
-                updateClockDisplay();
-            }
+        function resetGame() {
+            turn = 'white';
+            createBoard();
+            setTimer(timers.white);
         }
 
         createBoard();
