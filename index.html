@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ŠKOLNÍ ŠACHY - S NÁPOVĚDOU</title>
+    <title>ŠKOLNÍ ŠACHY - PROFI</title>
     <style>
         :root {
             --white-sq: #f0d9b5;
@@ -62,16 +62,12 @@
         .white { background-color: var(--white-sq); }
         .black { background-color: var(--black-sq); }
         .selected { background-color: #f1c40f !important; }
+        .check { background-color: #e74c3c !important; } /* Zvýraznění krále v šachu */
 
-        /* STYL PRO TEČKY (NÁPOVĚDA) */
         .hint::after {
-            content: '';
-            width: 20px;
-            height: 20px;
+            content: ''; width: 20px; height: 20px;
             background-color: rgba(0, 0, 0, 0.3);
-            border-radius: 50%;
-            position: absolute;
-            z-index: 10;
+            border-radius: 50%; position: absolute; z-index: 10;
         }
 
         .piece-black { color: #000; filter: drop-shadow(0 0 1px #fff); z-index: 5; }
@@ -81,7 +77,7 @@
         .btn-reset { background: var(--accent); color: white; }
         .btn-rules { background: #9b59b6; color: white; }
 
-        #msg { color: #ff7675; text-align: center; min-height: 24px; font-weight: bold; }
+        #msg { color: #ff7675; text-align: center; min-height: 24px; font-weight: bold; font-size: 1.1rem; }
     </style>
 </head>
 <body>
@@ -145,11 +141,16 @@
                 const r = sq.dataset.r; const c = sq.dataset.c;
                 const char = boardState[r][c];
                 sq.innerHTML = '';
+                sq.classList.remove('check');
                 if (char) {
                     const span = document.createElement('span');
                     span.innerText = pieceMap[char];
                     span.className = char === char.toUpperCase() ? 'piece-white' : 'piece-black';
                     sq.appendChild(span);
+                    // Zvýraznění krále v šachu
+                    if (char.toLowerCase() === 'k' && isKingInCheck(char === 'K' ? 'white' : 'black')) {
+                        sq.classList.add('check');
+                    }
                 }
             });
         }
@@ -158,19 +159,16 @@
             const piece = boardState[r][c];
             const isWhite = piece && piece === piece.toUpperCase();
             
-            // Pokud už máme vybranou figuru a klikneme jinam
             if (selectedSq) {
                 if (isMoveLegal(selectedSq.r, selectedSq.c, r, c)) {
                     movePiece(selectedSq.r, selectedSq.c, r, c);
                 } else {
                     deselect();
-                    // Pokud klikneme na jinou vlastní figuru, vybereme tu novou
                     if (piece && ((turn === 'white' && isWhite) || (turn === 'black' && !isWhite))) {
                         selectPiece(r, c);
                     }
                 }
             } else {
-                // Výběr figury
                 if (piece && ((turn === 'white' && isWhite) || (turn === 'black' && !isWhite))) {
                     selectPiece(r, c);
                 }
@@ -183,7 +181,6 @@
             showHints(r, c);
         }
 
-        // Funkce pro zobrazení černých teček
         function showHints(fromR, fromC) {
             for (let r = 0; r < 8; r++) {
                 for (let c = 0; c < 8; c++) {
@@ -192,6 +189,19 @@
                     }
                 }
             }
+        }
+
+        function isPathClear(fR, fC, tR, tC) {
+            let dr = Math.sign(tR - fR);
+            let dc = Math.sign(tC - fC);
+            let currR = fR + dr;
+            let currC = fC + dc;
+            while (currR !== tR || currC !== tC) {
+                if (boardState[currR][currC] !== '') return false;
+                currR += dr;
+                currC += dc;
+            }
+            return true;
         }
 
         function isMoveLegal(fromR, fromC, toR, toC) {
@@ -204,27 +214,67 @@
             if (target && (target === target.toUpperCase()) === (piece === piece.toUpperCase())) return false;
 
             if (type === 'n') return (dr === 2 && dc === 1) || (dr === 1 && dc === 2);
-            if (type === 'b') return dr === dc;
-            if (type === 'r') return dr === 0 || dc === 0;
-            if (type === 'q') return dr === dc || dr === 0 || dc === 0;
+            
+            // Pro ostatní figury kontrolujeme, zda je cesta volná
+            if (type === 'r' || type === 'b' || type === 'q') {
+                if (type === 'r' && (dr !== 0 && dc !== 0)) return false;
+                if (type === 'b' && dr !== dc) return false;
+                if (type === 'q' && (dr !== dc && dr !== 0 && dc !== 0)) return false;
+                return isPathClear(fromR, fromC, toR, toC);
+            }
+
             if (type === 'k') return dr <= 1 && dc <= 1;
+
             if (type === 'p') {
                 const dir = piece === 'P' ? -1 : 1;
                 if (dc === 0 && !target) {
                     if (toR === fromR + dir) return true;
-                    if (((fromR === 6 && piece === 'P') || (fromR === 1 && piece === 'p')) && toR === fromR + (2 * dir)) return true;
+                    if (((fromR === 6 && piece === 'P') || (fromR === 1 && piece === 'p')) && toR === fromR + (2 * dir)) {
+                        return boardState[fromR + dir][fromC] === '';
+                    }
                 }
                 if (dc === 1 && toR === fromR + dir && target) return true;
             }
             return false;
         }
 
+        function isKingInCheck(color) {
+            let kingPos = null;
+            let kingChar = color === 'white' ? 'K' : 'k';
+            for(let r=0; r<8; r++) {
+                for(let c=0; c<8; c++) {
+                    if(boardState[r][c] === kingChar) kingPos = {r, c};
+                }
+            }
+            if(!kingPos) return false;
+
+            for(let r=0; r<8; r++) {
+                for(let c=0; c<8; c++) {
+                    let p = boardState[r][c];
+                    if(p !== '' && (p === p.toUpperCase()) !== (color === 'white')) {
+                        if(isMoveLegal(r, c, kingPos.r, kingPos.c)) return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         function movePiece(fromR, fromC, toR, toC) {
             const piece = boardState[fromR][fromC];
+            const oldTarget = boardState[toR][toC];
+            
             boardState[toR][toC] = piece;
             boardState[fromR][fromC] = '';
             
-            // Proměna pěšce
+            // Kontrola, zda tah nevystavil vlastního krále do šachu (nepovolené)
+            if (isKingInCheck(turn)) {
+                boardState[fromR][fromC] = piece;
+                boardState[toR][toC] = oldTarget;
+                msgEl.innerText = "Nemůžeš táhnout do šachu!";
+                deselect();
+                return;
+            }
+
             if (piece.toLowerCase() === 'p' && (toR === 0 || toR === 7)) {
                 boardState[toR][toC] = piece === 'P' ? 'Q' : 'q';
             }
@@ -232,6 +282,12 @@
             switchTurn();
             deselect();
             drawPieces();
+
+            if (isKingInCheck(turn)) {
+                msgEl.innerText = "POZOR: ŠACH!";
+            } else {
+                msgEl.innerText = "";
+            }
         }
 
         function switchTurn() {
